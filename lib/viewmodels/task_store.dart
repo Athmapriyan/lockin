@@ -55,6 +55,15 @@ class TaskStore extends ChangeNotifier {
     }
   }
 
+  Future<void> updateTask(TaskItem updatedTask) async {
+    final index = _tasks.indexWhere((t) => t.id == updatedTask.id);
+    if (index != -1) {
+      _tasks[index] = updatedTask;
+      notifyListeners();
+      await _storageService.saveTasks(_tasks);
+    }
+  }
+
   Future<void> deleteTask(String id) async {
     _tasks.removeWhere((t) => t.id == id);
     notifyListeners();

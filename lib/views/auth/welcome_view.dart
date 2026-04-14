@@ -13,6 +13,19 @@ class WelcomeView extends StatefulWidget {
 class _WelcomeViewState extends State<WelcomeView> {
   String _pin = '';
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _attemptBiometric();
+    });
+  }
+
+  Future<void> _attemptBiometric() async {
+    final authStore = context.read<AuthStore>();
+    await authStore.authenticateWithBiometrics();
+  }
+
   void _onKeyPress(String val) {
     if (_pin.length < 4) {
       setState(() => _pin += val);
@@ -76,6 +89,11 @@ class _WelcomeViewState extends State<WelcomeView> {
                   ),
                 );
               }),
+            ),
+            const SizedBox(height: 24),
+            IconButton(
+              onPressed: _attemptBiometric,
+              icon: const Icon(Icons.fingerprint, color: AppColors.primary, size: 48),
             ),
             const Spacer(),
             _buildKeypad(),

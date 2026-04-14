@@ -16,6 +16,7 @@ class CalendarView extends StatefulWidget {
 class _CalendarViewState extends State<CalendarView> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
+  CalendarFormat _calendarFormat = CalendarFormat.month;
 
   @override
   void initState() {
@@ -59,12 +60,20 @@ class _CalendarViewState extends State<CalendarView> {
               firstDay: DateTime.utc(2020, 10, 16),
               lastDay: DateTime.utc(2030, 3, 14),
               focusedDay: _focusedDay,
+              calendarFormat: _calendarFormat,
               selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
               onDaySelected: (selectedDay, focusedDay) {
                 setState(() {
                   _selectedDay = selectedDay;
                   _focusedDay = focusedDay;
                 });
+              },
+              onFormatChanged: (format) {
+                if (_calendarFormat != format) {
+                  setState(() {
+                    _calendarFormat = format;
+                  });
+                }
               },
               calendarStyle: const CalendarStyle(
                 selectedDecoration: BoxDecoration(
@@ -77,7 +86,8 @@ class _CalendarViewState extends State<CalendarView> {
                 ),
               ),
               headerStyle: const HeaderStyle(
-                formatButtonVisible: false,
+                formatButtonVisible: true,
+                formatButtonShowsNext: false,
                 titleCentered: true,
               ),
             ),
