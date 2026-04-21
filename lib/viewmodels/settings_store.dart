@@ -23,7 +23,7 @@ class SettingsStore extends ChangeNotifier {
     
     if (_isPrivacyModeActive) {
       try {
-        await ScreenBrightness().setScreenBrightness(0.1);
+        await ScreenBrightness().setApplicationScreenBrightness(0.1);
       } catch (e) {
         debugPrint('Failed to set brightness: $e');
       }
@@ -44,9 +44,9 @@ class SettingsStore extends ChangeNotifier {
     
     try {
       if (_isPrivacyModeActive) {
-        await ScreenBrightness().setScreenBrightness(0.1);
+        await ScreenBrightness().setApplicationScreenBrightness(0.1);
       } else {
-        await ScreenBrightness().resetScreenBrightness();
+        await ScreenBrightness().resetApplicationScreenBrightness();
       }
     } catch (e) {
       debugPrint('Failed to set brightness: $e');

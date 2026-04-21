@@ -17,7 +17,7 @@ class NotificationManager {
     tz.initializeTimeZones();
 
     await _plugin.initialize(
-      const InitializationSettings(
+      settings: const InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
         iOS: DarwinInitializationSettings(),
       ),
@@ -39,11 +39,11 @@ class NotificationManager {
         : "It's time to work on: ${task.title}";
 
     await _plugin.zonedSchedule(
-      task.id.hashCode,
-      title,
-      body,
-      tz.TZDateTime.from(task.date, tz.local),
-      const NotificationDetails(
+      id: task.id.hashCode,
+      title: title,
+      body: body,
+      scheduledDate: tz.TZDateTime.from(task.date, tz.local),
+      notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
           'lockin_tasks',
           'Tasks',
@@ -53,11 +53,10 @@ class NotificationManager {
         iOS: DarwinNotificationDetails(),
       ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
     );
   }
 
   Future<void> cancelTaskNotification(String taskId) async {
-    await _plugin.cancel(taskId.hashCode);
+    await _plugin.cancel(id: taskId.hashCode);
   }
 }

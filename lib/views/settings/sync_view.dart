@@ -60,6 +60,7 @@ class _SyncViewState extends State<SyncView> {
   Future<void> _pullTasks(String code) async {
     if (code.isEmpty) return;
     
+    final taskStore = context.read<TaskStore>();
     setState(() => _isScanning = true);
     try {
       final response = await Supabase.instance.client
@@ -76,7 +77,6 @@ class _SyncViewState extends State<SyncView> {
       final List<dynamic> jsonList = jsonDecode(rawPayload);
       final tasks = jsonList.map((e) => TaskItem.fromJson(e)).toList();
 
-      final taskStore = context.read<TaskStore>();
       for (final t in tasks) {
         if (!taskStore.tasks.any((existing) => existing.id == t.id)) {
           await taskStore.addTask(t);
@@ -111,7 +111,6 @@ class _SyncViewState extends State<SyncView> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Device Sync')),
