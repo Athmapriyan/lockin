@@ -32,9 +32,12 @@ class _CalendarViewState extends State<CalendarView> {
 
     final selectedTasks = taskStore.tasks.where((t) {
       if (_selectedDay == null) return false;
-      return t.date.year == _selectedDay!.year &&
+      bool onDay = t.date.year == _selectedDay!.year &&
           t.date.month == _selectedDay!.month &&
           t.date.day == _selectedDay!.day;
+      
+      bool matchesPrivacy = settingsStore.isPrivacyModeActive ? t.isPrivate : !t.isPrivate;
+      return onDay && matchesPrivacy;
     }).toList();
 
     return Scaffold(
@@ -84,6 +87,29 @@ class _CalendarViewState extends State<CalendarView> {
                   color: AppColors.primaryLight,
                   shape: BoxShape.circle,
                 ),
+              ),
+              calendarBuilders: CalendarBuilders(
+                markerBuilder: (context, date, events) {
+                  final hasTask = taskStore.tasks.any((t) =>
+                      t.date.year == date.year &&
+                      t.date.month == date.month &&
+                      t.date.day == date.day &&
+                      (settingsStore.isPrivacyModeActive ? t.isPrivate : !t.isPrivate));
+                  if (hasTask) {
+                    return Positioned(
+                      bottom: 4,
+                      child: Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    );
+                  }
+                  return null;
+                },
               ),
               headerStyle: const HeaderStyle(
                 formatButtonVisible: true,

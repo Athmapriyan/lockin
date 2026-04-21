@@ -1,4 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 import '../models/task_item.dart';
 
 class NotificationManager {
@@ -12,27 +14,36 @@ class NotificationManager {
   Future<void> init() async {
     if (_isInitialized) return;
 
+    tz.initializeTimeZones();
+
     await _plugin.initialize(
-      settings: const InitializationSettings(
+      const InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
         iOS: DarwinInitializationSettings(),
       ),
     );
+
+    // Request permissions for Android 13+
+    await _plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
+    await _plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.requestExactAlarmsPermission();
+
     _isInitialized = true;
   }
 
-  Future<void> showTaskNotification(TaskItem task, bool isPrivacyMode) async {
-    final String title =
-        isPrivacyMode && task.isPrivate ? 'Private Task' : task.title;
-    final String body = isPrivacyMode && task.isPrivate
+  Future<void> scheduleTaskNotification(TaskItem task) async {
+    if (task.date.isBefore(DateTime.now())) return; // Cannot schedule in past
+
+    final String title = task.isPrivate ? 'Private Scheduled Task' : task.title;
+    final String body = task.isPrivate
         ? 'You have a scheduled task.'
         : "It's time to work on: ${task.title}";
 
-    await _plugin.show(
-      id: task.id.hashCode,
-      title: title,
-      body: body,
-      notificationDetails: const NotificationDetails(
+    await _plugin.zonedSchedule(
+      task.id.hashCode,
+      title,
+      body,
+      tz.TZDateTime.from(task.date, tz.local),
+      const NotificationDetails(
         android: AndroidNotificationDetails(
           'lockin_tasks',
           'Tasks',
@@ -41,6 +52,12 @@ class NotificationManager {
         ),
         iOS: DarwinNotificationDetails(),
       ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
     );
+  }
+
+  Future<void> cancelTaskNotification(String taskId) async {
+    await _plugin.cancel(taskId.hashCode);
   }
 }

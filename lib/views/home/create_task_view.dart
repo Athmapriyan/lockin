@@ -17,6 +17,7 @@ class _CreateTaskViewState extends State<CreateTaskView> {
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
   bool _isPrivate = false;
+  int _priority = 1;
 
   void _saveTask() {
     if (_titleController.text.trim().isEmpty) return;
@@ -34,6 +35,7 @@ class _CreateTaskViewState extends State<CreateTaskView> {
       title: _titleController.text.trim(),
       date: finalDateTime,
       isPrivate: _isPrivate,
+      priority: _priority,
     );
 
     context.read<TaskStore>().addTask(task);
@@ -186,6 +188,36 @@ class _CreateTaskViewState extends State<CreateTaskView> {
                     onChanged: (val) => setState(() => _isPrivate = val),
                     activeThumbColor: Colors.white,
                     activeTrackColor: AppColors.primary,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.flag_outlined, size: 20),
+                      const SizedBox(width: 8),
+                      Text('Priority', style: theme.textTheme.titleMedium),
+                    ],
+                  ),
+                  SegmentedButton<int>(
+                    segments: const [
+                      ButtonSegment(value: 0, label: Text('Low')),
+                      ButtonSegment(value: 1, label: Text('Med')),
+                      ButtonSegment(value: 2, label: Text('High')),
+                    ],
+                    selected: {_priority},
+                    onSelectionChanged: (Set<int> newSelection) {
+                      setState(() {
+                        _priority = newSelection.first;
+                      });
+                    },
+                    style: SegmentedButton.styleFrom(
+                      selectedForegroundColor: Colors.white,
+                      selectedBackgroundColor: AppColors.primary,
+                    ),
                   ),
                 ],
               ),

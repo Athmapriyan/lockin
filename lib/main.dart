@@ -8,11 +8,16 @@ import 'viewmodels/auth_store.dart';
 import 'services/notification_manager.dart';
 import 'views/main_navigation.dart';
 import 'views/auth/welcome_view.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationManager().init();
-  
+  await Supabase.initialize(
+    url: 'https://qhdqehchosusllwazgyo.supabase.co',
+    anonKey: 'sb_publishable_RmynHhXc0vLJgcEQOlFTLw_I-4bFJa3',
+  );
+  runApp(MyApp());
   runApp(
     MultiProvider(
       providers: [
@@ -39,7 +44,51 @@ class LockInApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: settingsStore.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      home: authStore.isAuthenticated ? const MainNavigation() : const WelcomeView(),
+      home: authStore.isAuthenticated
+          ? const MainNavigation()
+          : const WelcomeView(),
+    );
+  }
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(title: 'Todos', home: HomePage());
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final _future = Supabase.instance.client.from('todos').select();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: FutureBuilder(
+        future: _future,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final todos = snapshot.data!;
+          return ListView.builder(
+            itemCount: todos.length,
+            itemBuilder: ((context, index) {
+              final todo = todos[index];
+              return ListTile(title: Text(todo['name']));
+            }),
+          );
+        },
+      ),
     );
   }
 }

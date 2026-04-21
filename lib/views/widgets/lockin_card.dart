@@ -116,6 +116,16 @@ class LockInCard extends StatelessWidget {
                     size: 16,
                     color: isDark ? Colors.white54 : AppColors.textSecondaryLight,
                   ),
+                if (task.isPrivate) const SizedBox(width: 8),
+                Icon(
+                  Icons.flag,
+                  size: 16,
+                  color: task.priority == 2
+                      ? Colors.red.withValues(alpha: 0.8)
+                      : task.priority == 1
+                          ? Colors.orange.withValues(alpha: 0.8)
+                          : Colors.green.withValues(alpha: 0.8),
+                ),
               ],
             ),
           ),

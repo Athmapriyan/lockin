@@ -101,14 +101,19 @@ class HomeView extends StatelessWidget {
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
-                  final task = taskStore.todayTasks[index];
+                  final allToday = taskStore.todayTasks;
+                  final filteredTasks = allToday.where((t) => settingsStore.isPrivacyModeActive ? t.isPrivate : !t.isPrivate).toList();
+                  
+                  if (index >= filteredTasks.length) return null;
+                  
+                  final task = filteredTasks[index];
                   return LockInCard(
                     task: task,
                     isPrivacyMode: settingsStore.isPrivacyModeActive,
                     onToggle: () => taskStore.toggleTaskCompletion(task.id),
                   );
                 },
-                childCount: taskStore.todayTasks.length,
+                childCount: taskStore.todayTasks.where((t) => settingsStore.isPrivacyModeActive ? t.isPrivate : !t.isPrivate).length,
               ),
             ),
           const SliverToBoxAdapter(child: SizedBox(height: 100)),

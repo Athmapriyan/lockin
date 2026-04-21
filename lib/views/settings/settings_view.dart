@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 import '../../viewmodels/settings_store.dart';
 import '../../viewmodels/auth_store.dart';
 import '../../theme/app_colors.dart';
-
+import 'package:share_plus/share_plus.dart';
+import '../../services/storage_service.dart';
+import 'sync_view.dart';
 class SettingsView extends StatelessWidget {
   const SettingsView({super.key});
 
@@ -111,7 +113,20 @@ class SettingsView extends StatelessWidget {
                       style: TextStyle(fontWeight: FontWeight.w500)),
                   trailing: const Icon(Icons.chevron_right,
                       color: AppColors.textSecondaryLight),
-                  onTap: () {},
+                  onTap: () async {
+                    final path = await StorageService().taskFilePath;
+                    await Share.shareXFiles([XFile(path)], text: 'My LockIn Tasks Backup');
+                  },
+                ),
+                const Divider(height: 1, indent: 56),
+                ListTile(
+                  leading: const Icon(Icons.sync_rounded, color: Colors.purple),
+                  title: const Text('Device Sync',
+                      style: TextStyle(fontWeight: FontWeight.w500)),
+                  trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondaryLight),
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const SyncView()));
+                  },
                 ),
               ],
             ),

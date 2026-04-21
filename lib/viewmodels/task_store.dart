@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../models/task_item.dart';
 import '../services/storage_service.dart';
+import '../services/notification_manager.dart';
 
 class TaskStore extends ChangeNotifier {
   final StorageService _storageService = StorageService();
@@ -44,6 +45,7 @@ class TaskStore extends ChangeNotifier {
     _tasks.add(task);
     notifyListeners();
     await _storageService.saveTasks(_tasks);
+    await NotificationManager().scheduleTaskNotification(task);
   }
 
   Future<void> toggleTaskCompletion(String id) async {
@@ -61,6 +63,8 @@ class TaskStore extends ChangeNotifier {
       _tasks[index] = updatedTask;
       notifyListeners();
       await _storageService.saveTasks(_tasks);
+      await NotificationManager().cancelTaskNotification(updatedTask.id);
+      await NotificationManager().scheduleTaskNotification(updatedTask);
     }
   }
 
@@ -68,5 +72,6 @@ class TaskStore extends ChangeNotifier {
     _tasks.removeWhere((t) => t.id == id);
     notifyListeners();
     await _storageService.saveTasks(_tasks);
+    await NotificationManager().cancelTaskNotification(id);
   }
 }

@@ -12,6 +12,11 @@ class StorageService {
     return File('${directory.path}/$_fileName');
   }
 
+  Future<String> get taskFilePath async {
+    final file = await _localFile;
+    return file.path;
+  }
+
   Future<List<TaskItem>> loadTasks() async {
     try {
       final file = await _localFile;

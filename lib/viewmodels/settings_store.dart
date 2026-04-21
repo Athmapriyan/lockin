@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:screen_brightness/screen_brightness.dart';
 
 class SettingsStore extends ChangeNotifier {
   bool _isDarkMode = false;
@@ -19,6 +20,15 @@ class SettingsStore extends ChangeNotifier {
     _isDarkMode = prefs.getBool('isDarkMode') ?? false;
     _isPrivacyModeActive = prefs.getBool('isPrivacyModeActive') ?? false;
     _faceIdEnabled = prefs.getBool('faceIdEnabled') ?? false;
+    
+    if (_isPrivacyModeActive) {
+      try {
+        await ScreenBrightness().setScreenBrightness(0.1);
+      } catch (e) {
+        debugPrint('Failed to set brightness: $e');
+      }
+    }
+    
     notifyListeners();
   }
 
@@ -31,6 +41,17 @@ class SettingsStore extends ChangeNotifier {
 
   Future<void> togglePrivacyMode() async {
     _isPrivacyModeActive = !_isPrivacyModeActive;
+    
+    try {
+      if (_isPrivacyModeActive) {
+        await ScreenBrightness().setScreenBrightness(0.1);
+      } else {
+        await ScreenBrightness().resetScreenBrightness();
+      }
+    } catch (e) {
+      debugPrint('Failed to set brightness: $e');
+    }
+
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isPrivacyModeActive', _isPrivacyModeActive);
